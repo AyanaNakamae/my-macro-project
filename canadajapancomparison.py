@@ -178,3 +178,21 @@ else:
     print(f"  ✓ 両国の景気変動の大きさは似ている")
 
 print(f"\nプログラム完了：統計分析とグラフ作成が正常に実行されました。")
+
+# ステップ5：循環変動成分の時系列比較（単独グラフ）
+plt.figure(figsize=(12, 6))
+plt.plot(canada_cycle.index, canada_cycle, label='カナダ', color='red', linewidth=2)
+plt.plot(japan_cycle.index, japan_cycle, label='日本', color='blue', linewidth=2)
+
+plt.title('循環変動成分の時系列比較（カナダ vs 日本）', fontsize=14, fontweight='bold')
+plt.xlabel('年', fontsize=12)
+plt.ylabel('循環変動成分', fontsize=12)
+plt.legend(fontsize=12)
+plt.grid(True, alpha=0.3)
+
+# 重要な景気後退期にマークを追加（オプション）
+plt.axvspan('2008-01-01', '2009-12-31', alpha=0.2, color='gray', label='金融危機')
+plt.axvspan('2020-01-01', '2020-12-31', alpha=0.2, color='yellow', label='コロナ危機')
+
+plt.tight_layout()
+plt.show()
