@@ -159,21 +159,25 @@ def format_table(df):
 
 def print_formatted_table(df):
     """元のTable 5.1形式で表を出力"""
-    print("\nTable 5.1")
+    print("\n" + "="*90)
+    print("Table 5.1")
     print("Growth Accounting in OECD Countries: 1990-2019")
-    print("-" * 85)
+    print("="*90)
     
     # ヘッダー行
-    print(f"{'Country':<15} {'Growth Rate':<12} {'TFP Growth':<12} {'Capital Deepening':<17} {'TFP Share':<10} {'Capital Share':<13}")
-    print("-" * 85)
+    header = f"{'Country':<15} {'Growth Rate':<12} {'TFP Growth':<12} {'Capital Deepening':<17} {'TFP Share':<10} {'Capital Share':<13}"
+    print(header)
+    print("-" * 90)
     
     # データ行
     for _, row in df.iterrows():
         if row['Country'] == 'Average':
-            print("-" * 85)
+            print("-" * 90)
         
-        print(f"{row['Country']:<15} {row['Growth Rate']:<12.2f} {row['TFP Growth']:<12.2f} "
-              f"{row['Capital Deepening']:<17.2f} {row['TFP Share']:<10.2f} {row['Capital Share']:<13.2f}")
+        line = f"{row['Country']:<15} {row['Growth Rate']:<12.2f} {row['TFP Growth']:<12.2f} {row['Capital Deepening']:<17.2f} {row['TFP Share']:<10.2f} {row['Capital Share']:<13.2f}"
+        print(line)
+    
+    print("="*90)
 
 def main():
     """メイン関数"""
@@ -192,19 +196,43 @@ def main():
     print("3. Formatting results...")
     final_table = format_table(results)
     
-    # 結果表示（Table 5.1形式）
+    # 結果表示（Python console用の表形式）
     print_formatted_table(final_table)
     
-    # 統計サマリー
-    print(f"\n統計サマリー:")
-    print(f"対象国数: {len(final_table) - 1}")  # 平均行を除く
-    print(f"平均GDP成長率: {final_table[final_table['Country'] == 'Average']['Growth Rate'].iloc[0]:.2f}%")
-    print(f"平均TFP成長率: {final_table[final_table['Country'] == 'Average']['TFP Growth'].iloc[0]:.2f}%")
-    print(f"平均資本分配率(α): {final_table[final_table['Country'] == 'Average']['Alpha'].iloc[0]:.2f}")
+    # 詳細な統計サマリー
+    print("\n" + "="*60)
+    print("STATISTICAL SUMMARY")
+    print("="*60)
+    avg_data = final_table[final_table['Country'] == 'Average'].iloc[0]
     
-    # CSVファイルに保存
-    final_table.to_csv('growth_accounting_1990_2019.csv', index=False)
-    print(f"\n結果を 'growth_accounting_1990_2019.csv' に保存しました。")
+    print(f"対象国数: {len(final_table) - 1}")
+    print(f"分析期間: 1990-2019 (30年間)")
+    print(f"平均GDP成長率: {avg_data['Growth Rate']:.2f}%")
+    print(f"平均TFP成長率: {avg_data['TFP Growth']:.2f}%")
+    print(f"平均資本深化: {avg_data['Capital Deepening']:.2f}%")
+    print(f"平均TFP寄与度: {avg_data['TFP Share']:.2f}")
+    print(f"平均資本寄与度: {avg_data['Capital Share']:.2f}")
+    print(f"平均資本分配率(α): {avg_data['Alpha']:.2f}")
+    
+    # 上位/下位国の分析
+    non_avg = final_table[final_table['Country'] != 'Average'].copy()
+    
+    print(f"\n高成長国 TOP 3:")
+    top_growth = non_avg.nlargest(3, 'Growth Rate')
+    for i, (_, row) in enumerate(top_growth.iterrows(), 1):
+        print(f"  {i}. {row['Country']}: {row['Growth Rate']:.2f}%")
+    
+    print(f"\nTFP成長率 TOP 3:")
+    top_tfp = non_avg.nlargest(3, 'TFP Growth')
+    for i, (_, row) in enumerate(top_tfp.iterrows(), 1):
+        print(f"  {i}. {row['Country']}: {row['TFP Growth']:.2f}%")
+    
+    # CSVファイルに保存（オプション）
+    try:
+        final_table.to_csv('growth_accounting_1990_2019.csv', index=False)
+        print(f"\n注: 結果を 'growth_accounting_1990_2019.csv' にも保存しました。")
+    except:
+        print(f"\n注: CSVファイルの保存に失敗しましたが、分析は正常に完了しました。")
     
     return final_table
 
@@ -225,4 +253,3 @@ if __name__ == "__main__":
     print("\n成長会計の恒等式:")
     print("GDP成長率 = TFP成長率 + α×資本成長率 + (1-α)×労働成長率")
     print("ここで、α は資本分配率（通常0.3-0.4）")
-    
